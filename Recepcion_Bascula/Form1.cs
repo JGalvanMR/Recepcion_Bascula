@@ -37,7 +37,7 @@ namespace Recepcion_Bascula
         public static string lin, prod, numflete = "", id_proveedor, id_rancho, origen, id_responsable, plataforma, numero_economico, chofer, tipo_transporte, id_linea, tipo, transportista, rancho, proveedor, id_unidad, id_variedad, vehiculo = "", productos = "", unities = "", clasificacion = "", estatus, clave_bas, hay, detalle, envase = "", rec_esp = "", tabl = "";
         private string aux_id_rancho, aux_observacion, aux_num_economico, aux_od, prov_clave = "", rch_clave, tbl_clave, tbl_nombre;
         private string aux_transporte, aux_chofer, aux_responsable, aux_id_tipo_flete, aux_id_responsable, aux_origen;
-        private string aux_valor_operador, aux_valor_transportista, consulta = "N";        
+        private string aux_valor_operador, aux_valor_transportista, consulta = "N";
         private string aux_id_proveedor, aux_nombre_proveedor, aux_opcion = "", aux_presentacion, texto, tant, aux_nom_variedad, fecha_carga;
         private Int32 lastId, numero, numero_renglones, rencontrol, coor_y_ima, bas_clave, opcion;
         public static double peso_entrada, peso_bruto, tara, peso_neto;
@@ -66,7 +66,7 @@ namespace Recepcion_Bascula
         {
             InitializeComponent();
             string ruta = @"C:\SisGabWeb\fondo_formularios.jpg";
-            this.BackgroundImage = System.Drawing.Bitmap.FromFile(ruta);       
+            this.BackgroundImage = System.Drawing.Bitmap.FromFile(ruta);
         }
 
         //public void tabla()
@@ -79,8 +79,8 @@ namespace Recepcion_Bascula
 
         //cargar fletes pendientes
 
-        private void cargar_fletes_pendientes_internet()
-        {            
+        private void cargar_fletes_pendientes_internetLEGACY()
+        {
             listBox1.Items.Clear();
             MySqlCommand cmnd1 = mySqlConn.CreateCommand();
             MySqlDataReader reader;
@@ -111,6 +111,56 @@ namespace Recepcion_Bascula
             {
                 mySqlConn.Close();
                 Console.WriteLine("Error Conectando al sitio Fletes Mrlucky\n");
+            }
+        }
+
+        private void cargar_fletes_pendientes_internet()
+        {
+            listBox1.Items.Clear();
+
+            // Asegurar que la conexión esté cerrada antes de abrirla
+            if (mySqlConn.State == System.Data.ConnectionState.Open)
+                mySqlConn.Close();
+
+            try
+            {
+                mySqlConn.Open();
+                using (MySqlCommand cmnd1 = mySqlConn.CreateCommand())
+                {
+                    cmnd1.CommandText = @"select A.id_flete, A.nom_proveedor, B.orde, A.id_destino 
+                                  from tb_mstr_flete A
+                                  inner join tb_cat_origen_destino B on A.origen = B.id_od 
+                                  where A.estatus = 'A' 
+                                    and B.orde like '%COMER%'  
+                                  order by A.id_flete desc
+                                  limit 200";
+
+                    using (MySqlDataReader reader = cmnd1.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            // Evitar error si algún campo viene NULL
+                            string idFlete = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                            string orde = reader.IsDBNull(2) ? "" : reader.GetString(2);
+
+                            listBox1.Items.Add(idFlete);
+                            listBox1.Items.Add(orde);
+                            listBox1.Items.Add("                                                   ");
+                        }
+                    } // reader se cierra y dispone automáticamente
+                } // cmnd1 se dispone automáticamente
+            }
+            catch (Exception ex)
+            {
+                // Informar al usuario en lugar de ocultar el error
+                MessageBox.Show("Error al cargar fletes pendientes: " + ex.Message,
+                                "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                // Garantizar cierre de conexión
+                if (mySqlConn.State == System.Data.ConnectionState.Open)
+                    mySqlConn.Close();
             }
         }
 
@@ -152,7 +202,7 @@ namespace Recepcion_Bascula
             GBVeh.Enabled = habilitar;
             txtpesosal.Enabled = habilitar;
             txtpesoneto.Enabled = habilitar;
-            GBTipo.Enabled = habilitar;            
+            GBTipo.Enabled = habilitar;
             txtregent.Enabled = habilitar;
             txtlin_clave.Enabled = habilitar;
             CBlinea.Enabled = habilitar;
@@ -160,13 +210,13 @@ namespace Recepcion_Bascula
             txtobs.Enabled = habilitar;
             txtprod_clave.Enabled = habilitar;
             CBProducto.Enabled = habilitar;
-            CBRecBas.Enabled = habilitar;            
+            CBRecBas.Enabled = habilitar;
         }
 
         //cargar linea de productos
         private void cargar_linea()
         {
-            try 
+            try
             {
                 thisConnection.Open();
 
@@ -176,7 +226,7 @@ namespace Recepcion_Bascula
                 reader1 = cmnd1.ExecuteReader();
                 while (reader1.Read())
                 {
-                    CBlinea.Items.Add(reader1.GetValue(0).ToString().Trim());                    
+                    CBlinea.Items.Add(reader1.GetValue(0).ToString().Trim());
                 }
                 reader1.Close();
                 thisConnection.Close();
@@ -196,7 +246,7 @@ namespace Recepcion_Bascula
             {
                 thisConnection.Open();
                 cmnd1 = thisConnection.CreateCommand();
-                cmnd1.CommandText = "SELECT TOP 1 inicio_sesion, usu_login FROM tb_cat_historial_dia where nombre_maquina = '" + Environment.MachineName + "' "+
+                cmnd1.CommandText = "SELECT TOP 1 inicio_sesion, usu_login FROM tb_cat_historial_dia where nombre_maquina = '" + Environment.MachineName + "' " +
                                     " AND sistema = 'SIPGAB' ORDER BY inicio_sesion desc";
                 reader1 = cmnd1.ExecuteReader();
                 while (reader1.Read())
@@ -220,7 +270,7 @@ namespace Recepcion_Bascula
             {
                 thisConnection.Close();
                 MessageBox.Show(ex.ToString());
-            }    
+            }
             //PrintDocument pd = new System.Drawing.Printing.PrintDocument();
             //pd.DefaultPageSettings.PaperSize = new PaperSize("etiqueta", 307, 393);
             //pd.PrintPage += new PrintPageEventHandler(this.printDocument1_PrintPage);
@@ -230,10 +280,10 @@ namespace Recepcion_Bascula
         }
 
         private void Recepcion_bascula_Load(object sender, EventArgs e)
-        {       
+        {
             cargar_linea();
             //tabla();
-            try 
+            try
             {
                 thisConnection.Open();
                 cmnd1 = thisConnection.CreateCommand();
@@ -293,21 +343,21 @@ namespace Recepcion_Bascula
             TickPen = Tickets.Clone();
             CmbTktPen.Items.Clear();
             string Tick = "";
-            foreach(DataRow row in Tickets.Rows)
+            foreach (DataRow row in Tickets.Rows)
             {
                 if (Tick != row["id_ticket"].ToString().Trim())
                 {
                     CmbTktPen.Items.Add(row["id_ticket"].ToString() + " -> " + row["hora_peso"].ToString() + " -> " + row["prov_nombre"].ToString());
                     Tick = row["id_ticket"].ToString().Trim();
                 }
-                    //cbticket.Items.Add(reader1.GetValue(0).ToString().Trim() + " -> " + reader1.GetValue(1).ToString().Trim() + " -> " + reader1.GetValue(4).ToString().Trim() + " -> " + reader1.GetValue(5).ToString().Trim());
-                    //ticket.Items.Add(reader1.GetValue(0).ToString().Trim());
-                    //prod_clave.Items.Add(reader1.GetValue(2).ToString().Trim());
-                    //variedad.Items.Add(reader1.GetValue(3).ToString().Trim());
-                    //prod_num.Items.Add(reader1.GetValue(6).ToString().Trim());
+                //cbticket.Items.Add(reader1.GetValue(0).ToString().Trim() + " -> " + reader1.GetValue(1).ToString().Trim() + " -> " + reader1.GetValue(4).ToString().Trim() + " -> " + reader1.GetValue(5).ToString().Trim());
+                //ticket.Items.Add(reader1.GetValue(0).ToString().Trim());
+                //prod_clave.Items.Add(reader1.GetValue(2).ToString().Trim());
+                //variedad.Items.Add(reader1.GetValue(3).ToString().Trim());
+                //prod_num.Items.Add(reader1.GetValue(6).ToString().Trim());
             }
             //CmbTktPen.DisplayMember = ""
-            
+
         }
         //botón de alta
         private void btnAlta_Click(object sender, EventArgs e)
@@ -326,7 +376,7 @@ namespace Recepcion_Bascula
                 reader1 = cmnd1.ExecuteReader();
                 while (reader1.Read())
                 {
-                    lastId = Convert.ToInt32(reader1.GetValue(0).ToString());                    
+                    lastId = Convert.ToInt32(reader1.GetValue(0).ToString());
                 }
                 txtticket.Text = (lastId + 1).ToString();
                 thisConnection.Close();
@@ -352,7 +402,7 @@ namespace Recepcion_Bascula
             catch (SqlException ex)
             {
                 thisConnection.Close();
-                MessageBox.Show("Error al cargar el numero de ticket: " + ex.ToString(), "AVISO", MessageBoxButtons.OK, MessageBoxIcon.Error);                
+                MessageBox.Show("Error al cargar el numero de ticket: " + ex.ToString(), "AVISO", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -492,7 +542,7 @@ namespace Recepcion_Bascula
                 reader1.Close();
                 thisConnection.Close();
                 cargar_unidades(2);
-                datos_producto();                
+                datos_producto();
             }
             catch (SqlException ex)
             {
@@ -532,7 +582,7 @@ namespace Recepcion_Bascula
                         thisConnection.Close();
                         cargar_unidades(2);
                         datos_producto();
-                        aux_opcion = "V";                        
+                        aux_opcion = "V";
                     }
                     catch (SqlException ex)
                     {
@@ -584,25 +634,25 @@ namespace Recepcion_Bascula
 
             try
             {
-                numero = Convert.ToInt32(cad);                
-                numflete = cad.ToString().Trim();                
+                numero = Convert.ToInt32(cad);
+                numflete = cad.ToString().Trim();
 
-                if(CBmasFletes.Checked != true)
+                if (CBmasFletes.Checked != true)
                     txtregent.Text = numflete;
                 else
-                    txtregent.Text = txtregent.Text + ", "+ numflete;
+                    txtregent.Text = txtregent.Text + ", " + numflete;
 
-                if(numflete.Trim() != "")
+                if (numflete.Trim() != "")
                     btnimpticket.Enabled = true;
             }
-            catch 
-            { 
+            catch
+            {
                 MessageBox.Show("Seleccion incorrecta");
                 return;
             }
             cont++;
             try
-            {                
+            {
                 mySqlConn.Open();
                 thisConnection.Open();
                 cmnd = mySqlConn.CreateCommand();
@@ -614,14 +664,14 @@ namespace Recepcion_Bascula
                     {
                         txtobs.Text = reader.GetValue(0).ToString().Trim();
                         txttrans.Text = reader.GetValue(1).ToString().Trim();
-                        txtrch.Text = reader.GetValue(5).ToString().Trim() + " - " + reader.GetValue(2).ToString().Trim();                        
+                        txtrch.Text = reader.GetValue(5).ToString().Trim() + " - " + reader.GetValue(2).ToString().Trim();
                         rch_clave = reader.GetValue(5).ToString().Trim();
                         aux_chofer = reader.GetValue(3).ToString().Trim();
-                        aux_transporte = reader.GetValue(4).ToString().Trim();                        
+                        aux_transporte = reader.GetValue(4).ToString().Trim();
                     }
                     else
                     {
-                        txtobs.Text = txtobs.Text + ", "+ reader.GetValue(0).ToString().Trim();
+                        txtobs.Text = txtobs.Text + ", " + reader.GetValue(0).ToString().Trim();
                         txttrans.Text = txttrans.Text + ", " + reader.GetValue(1).ToString().Trim();
                         txtrch.Text = txtrch.Text + ", " + reader.GetValue(2).ToString().Trim();
                     }
@@ -635,7 +685,7 @@ namespace Recepcion_Bascula
                 reader = cmnd.ExecuteReader();
                 while (reader.Read())
                 {
-                    if(CBmasFletes.Checked != true)
+                    if (CBmasFletes.Checked != true)
                         txttrans.Text = txttrans.Text + ", " + reader.GetValue(0).ToString().Trim();
                     else
                         txttrans.Text = txttrans.Text + ", " + reader.GetValue(0).ToString().Trim();
@@ -646,13 +696,13 @@ namespace Recepcion_Bascula
                 cmnd.CommandText = "select tipo_prod, cantidad, id_producto, id_linea, id_tabla, nom_tabla, num_tarimas, caj_tarimas, id_unidad, id_variedad, det_observa from tb_det_flete where id_flete = " + numero;
                 reader = cmnd.ExecuteReader();
                 while (reader.Read())
-                {                    
-                    id_unidad = reader.GetValue(8).ToString().Trim();                    
+                {
+                    id_unidad = reader.GetValue(8).ToString().Trim();
                     for (int i = 0; i < clave_unidades.Count; i++)
                     {
                         if (id_unidad == clave_unidades[i].ToString().Trim())
                         {
-                            nombre_unidad = unidades[i].ToString().Trim();                            
+                            nombre_unidad = unidades[i].ToString().Trim();
                             break;
                         }
                     }
@@ -671,14 +721,14 @@ namespace Recepcion_Bascula
                 {
                     CBProv.SelectedItem = reader1.GetValue(0).ToString();
                 }
-                reader1.Dispose();                
-               
+                reader1.Dispose();
+
                 for (int i = 0; i < DGV1.Rows.Count; i++)
-                {                    
-                    if(Convert.ToString(DGV1.Rows[i].Cells[0].Value).Length > 5)
+                {
+                    if (Convert.ToString(DGV1.Rows[i].Cells[0].Value).Length > 5)
                         DGV1.Rows[i].Cells[12].Value = "PT";
 
-                    if(Convert.ToString(DGV1.Rows[i].Cells[0].Value).Length <= 5)
+                    if (Convert.ToString(DGV1.Rows[i].Cells[0].Value).Length <= 5)
                         DGV1.Rows[i].Cells[12].Value = "MP";
 
                     //DGV1.Rows[i].Cells[0].Value = "09015";
@@ -687,8 +737,8 @@ namespace Recepcion_Bascula
                     reader1 = cmnd1.ExecuteReader();
                     while (reader1.Read())
                     {
-                        DGV1.Rows[i].Cells[1].Value = reader1.GetValue(0).ToString().Trim();                        
-                        DGV1.Rows[i].Cells[2].Value = reader1.GetValue(1).ToString().Trim();                        
+                        DGV1.Rows[i].Cells[1].Value = reader1.GetValue(0).ToString().Trim();
+                        DGV1.Rows[i].Cells[2].Value = reader1.GetValue(1).ToString().Trim();
                     }
 
                     if (reader1.HasRows == false)
@@ -710,7 +760,7 @@ namespace Recepcion_Bascula
                         reader.Dispose();
                     }
                     reader1.Dispose();
-                   
+
                     cmnd1 = thisConnection.CreateCommand();
                     cmnd1.CommandText = "select vari_nombre from tb_cat_variedad where vari_clave = '" + Convert.ToString(DGV1.Rows[i].Cells[14].Value) + "' and lin_clave = '" + Convert.ToString(DGV1.Rows[i].Cells[1].Value) + "'";
                     reader1 = cmnd1.ExecuteReader();
@@ -734,7 +784,7 @@ namespace Recepcion_Bascula
                         }
                         reader11.Dispose();
                         DGV1.Rows[i].Cells[1].Value = reader1.GetValue(1).ToString().Trim();
-                        DGV1.Rows[i].Cells[2].Value = reader1.GetValue(2).ToString().Trim(); 
+                        DGV1.Rows[i].Cells[2].Value = reader1.GetValue(2).ToString().Trim();
                     }
                     reader1.Dispose();
                 }//for
@@ -763,7 +813,7 @@ namespace Recepcion_Bascula
         }
 
         void CargarFlete()                      ///////////// Carga el Flete WEB ///////////////////////////
-        {         
+        {
             numero_renglones = 0;
             texto = "";
             texto = texto + "                  GRUPO U   \r\n\r\n"; numero_renglones++; numero_renglones++; numero_renglones++;
@@ -791,7 +841,7 @@ namespace Recepcion_Bascula
                     txt_placas = reader.GetString(17);
                     aux_id_tipo_flete = reader.GetString(21);
                     aux_valor_transportista = reader.GetString(31);
-                    fecha_carga = reader.GetString(9);                    
+                    fecha_carga = reader.GetString(9);
 
                     if (reader.GetString(28).ToString().Equals("P"))
                     {
@@ -825,7 +875,7 @@ namespace Recepcion_Bascula
                 this.DGVtemporal.Rows.Clear();
                 MySqlCommand cmnd2 = mySqlConn.CreateCommand();
                 MySqlDataReader reader2;
-                cmnd2.CommandText = "SELECT * FROM tb_det_flete WHERE id_flete = " + Convert.ToInt32(numflete);                         
+                cmnd2.CommandText = "SELECT * FROM tb_det_flete WHERE id_flete = " + Convert.ToInt32(numflete);
                 reader2 = cmnd2.ExecuteReader();
                 while (reader2.Read())
                 {
@@ -838,7 +888,7 @@ namespace Recepcion_Bascula
                         this.DGVtemporal.Rows.Add(false, reader2.GetString(5).ToString(), reader2.GetString(3).ToString(), reader2.GetString(2).ToString(), reader2.GetString(5).ToString(), "", "", "", "", "", reader2.GetString(10).ToString(), reader2.GetString(24).ToString(), reader2.GetString(9).ToString(), reader2.GetString(30).ToString(), reader2.GetString(31).ToString(), "PT", reader2.GetString(6).ToString(), reader2.GetString(28).ToString(), reader2.GetString(29).ToString(), reader2.GetString(7).ToString());
                     }
                     textBox10.Text = reader2.GetString(24);
-                    
+
                     id_rancho = reader2.GetString(23);
                     id_responsable = reader2.GetString(22); aux_nombre_proveedor = reader2.GetString(22);
                     id_linea = reader2.GetString(25); aux_origen = reader2.GetString(25);
@@ -935,7 +985,7 @@ namespace Recepcion_Bascula
                 mySqlConn.Close();
                 actualizarGridFletes();
             }
-            catch(MySqlException ex)
+            catch (MySqlException ex)
             {
                 mySqlConn.Close();
                 //MessageBox.Show("Error Conectando al sitio Fletes Mrlucky\n", "ERROR");
@@ -952,7 +1002,7 @@ namespace Recepcion_Bascula
         {
             string aux_nombre, aux_linea, indica, texto2;
             rencontrol = 5; aux_nom_variedad = "";
-            texto2 = ""; tant = ""; 
+            texto2 = ""; tant = "";
             for (int rows = 0; rows < DGVtemporal.Rows.Count; rows++)
             {
                 indica = "N"; rencontrol++;
@@ -1047,10 +1097,10 @@ namespace Recepcion_Bascula
                 //if ((rencontrol > 4) && (rencontrol == dataGridView1.Rows.Count)) { tpos = texto2; }
                 numero_renglones++;
             }  //for
-          
+
             texto = texto + tant;
             texto = texto + aux_observacion + "\r\n\r\n";
-            texto = texto + "Copia realizada en Comercializadora GAB\r\n\r\n";                        
+            texto = texto + "Copia realizada en Comercializadora GAB\r\n\r\n";
 
             var qrEncoder = new QrEncoder(ErrorCorrectionLevel.H);
             var qrCode = qrEncoder.Encode(numflete);
@@ -1123,7 +1173,7 @@ namespace Recepcion_Bascula
         {
             try
             {
-                Int32 id_entrada  = Convert.ToInt32(CBRegVig.SelectedValue.ToString());
+                Int32 id_entrada = Convert.ToInt32(CBRegVig.SelectedValue.ToString());
                 thisConnection.Open();
                 cmnd1 = thisConnection.CreateCommand();
                 cmnd1.CommandText = "select nombre, id_entrada from tb_mstr_registros_vigilancia where id_entrada = " + id_entrada;
@@ -1148,7 +1198,7 @@ namespace Recepcion_Bascula
         private void datos_producto()
         {
             try
-            {               
+            {
                 for (int i = 0; i < variedad.Count; i++)
                 {
                     Column17.Items.Add(variedad[i]);
@@ -1164,14 +1214,14 @@ namespace Recepcion_Bascula
                 //{
                 //    ranch.Items.Add(ranchos.Items[i]);
                 //}
-                
+
                 //bool esta = false;
 
                 for (int i = 0; i < clave_unidades.Count; i++)
                 {
                     if (envase == clave_unidades[i].ToString().Trim())
                     {
-                        nombre_unidad = unidades[i].ToString().Trim();                                    
+                        nombre_unidad = unidades[i].ToString().Trim();
                         break;
                     }
                 }
@@ -1211,7 +1261,7 @@ namespace Recepcion_Bascula
                 //}
                 //else
                 //    rch_clave = "01";
-                
+
                 //reader1.Dispose();
 
                 //cmnd1 = thisConnection.CreateCommand();
@@ -1247,7 +1297,7 @@ namespace Recepcion_Bascula
         }
 
         private void DGV1_DataError(object sender, DataGridViewDataErrorEventArgs e)
-        {            
+        {
             if (e.Exception.Message == "El valor de DataGridViewComboBoxCell no es válido." || e.Exception.Message == "DataGridViewComboBoxCell value is not valid.")
             {
                 object value = DGV1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
@@ -1317,7 +1367,7 @@ namespace Recepcion_Bascula
             #endregion
         }
 
-        public int i = 1, a= 0;
+        public int i = 1, a = 0;
         private void printDocument1_PrintPage(object sender, PrintPageEventArgs e)
         {
             if (i < 4)
@@ -1391,7 +1441,7 @@ namespace Recepcion_Bascula
                 i = 1;
             }
             else
-                e.HasMorePages = true;                
+                e.HasMorePages = true;
         }
 
         //En esta función se define los datos a imprimir
@@ -1401,7 +1451,7 @@ namespace Recepcion_Bascula
             float pos_x = 15;
             float pos_y = 15;
             //ev.Graphics.DrawString("Nombre: ", fuente, Brushes.Black, pos_x, pos_y, new StringFormat());
-           
+
             Image newImage = Image.FromFile(@"C:\SisGabWeb\qrcode.png");
 
             //cuando son 1 productos en el ticket
@@ -1436,7 +1486,7 @@ namespace Recepcion_Bascula
             if (aux_observacion.Trim() != "")
                 coor_y_ima = 800;
 
-            
+
             ev.Graphics.DrawImage(newImage, 15, coor_y_ima);
             ev.Graphics.DrawString(texto, fuente, Brushes.Black, pos_x + 6, pos_y, new StringFormat());
             ev.Graphics.DrawString("F-100-PAA-64\n\r Rev:02", fuente, Brushes.Black, 15, coor_y_ima + 150);
@@ -1470,26 +1520,26 @@ namespace Recepcion_Bascula
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
-        {            
+        {
             if (RBCar.Checked == true)
                 vehiculo = "C";
 
             if (RBvac.Checked == true)
-                vehiculo = "V";            
+                vehiculo = "V";
 
-            if(txtregent.Text.Trim() == "")
+            if (txtregent.Text.Trim() == "")
                 txtregent.Text = "0";
 
-            if(RBFlete.Checked == true)
-                clasificacion ="F";
+            if (RBFlete.Checked == true)
+                clasificacion = "F";
 
-            if(RBProvExt.Checked == true)
+            if (RBProvExt.Checked == true)
                 clasificacion = "E";
 
-            if(RBCaVe.Checked == true)
+            if (RBCaVe.Checked == true)
                 clasificacion = "C";
 
-            if(RBMovInt.Checked == true)
+            if (RBMovInt.Checked == true)
                 clasificacion = "I";
 
             if (txtpesohora.Text.Trim() == "" || txtpesohora.Text.Trim() == "00:00")
@@ -1513,14 +1563,14 @@ namespace Recepcion_Bascula
                 return;
             }
 
-            
+
             if (CBRecBas.SelectedIndex == -1)
             {
                 MessageBox.Show("Favor de seleccionar el nombre de la persona de báscula", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 CBRecBas.Focus();
                 return;
             }
-            
+
             if (CBIndRev.SelectedIndex == 0 || CBIndRev.SelectedIndex == -1)
                 hay = "N";
 
@@ -1614,14 +1664,14 @@ namespace Recepcion_Bascula
                             return;
                         }
                         else
-                        { 
-                            
+                        {
+
                         }
-                    }                    
+                    }
                 }
                 for (int i = 0; i < DGV1.Rows.Count; i++)
-                { 
-                    if(Convert.ToString(DGV1.Rows[i].Cells[17].Value).Trim() == "")
+                {
+                    if (Convert.ToString(DGV1.Rows[i].Cells[17].Value).Trim() == "")
                     {
                         if (MessageBox.Show("El producto de la fila: " + (i + 1).ToString() + " no tiene ticket\n\r¿Desea continuar guardando la información?", "AVISO", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                         {
@@ -1630,7 +1680,7 @@ namespace Recepcion_Bascula
                             return;
                         }
                         else
-                        {                         
+                        {
                         }
                     }
                 }
@@ -1649,8 +1699,8 @@ namespace Recepcion_Bascula
                         txtpesohora.Focus();
                         return;
                     }
-          
-  
+
+
                     #region si el flete es de Internet
                     if (aux_opcion == "I")
                     {
@@ -1669,10 +1719,10 @@ namespace Recepcion_Bascula
                                 txtregent.Text = "";
                                 thisConnection.Open();
                                 string insertarSql = "DECLARE @Error INT BEGIN TRAN " +
-                                                     "INSERT INTO tb_mstr_recepcion_bascula (fecha_entrada, cargado, folio, transportista, rancho, cantidad, unidad, producto, observacion, "+
-                                                     "clasificacion, peso_entrada, peso_bruto, tara, peso_neto, id_entrada, estatus, recibio_bascula, error, error_comenta, prov_clave, "+
-                                                     "hora_peso) VALUES (@aux_fecha_entrada, @aux_cargado, @aux_folio, @aux_transportista, @aux_rancho, @aux_cantidad, @aux_unidad, "+
-                                                     "@aux_producto, @aux_observacion, @aux_clasificacion, @aux_peso_entrada, @aux_peso_bruto, @aux_tara, @aux_peso_neto, @id_entrada, "+
+                                                     "INSERT INTO tb_mstr_recepcion_bascula (fecha_entrada, cargado, folio, transportista, rancho, cantidad, unidad, producto, observacion, " +
+                                                     "clasificacion, peso_entrada, peso_bruto, tara, peso_neto, id_entrada, estatus, recibio_bascula, error, error_comenta, prov_clave, " +
+                                                     "hora_peso) VALUES (@aux_fecha_entrada, @aux_cargado, @aux_folio, @aux_transportista, @aux_rancho, @aux_cantidad, @aux_unidad, " +
+                                                     "@aux_producto, @aux_observacion, @aux_clasificacion, @aux_peso_entrada, @aux_peso_bruto, @aux_tara, @aux_peso_neto, @id_entrada, " +
                                                      "@aux_estatus, @id_bascula, @hay_error, @error_comenta, @prove_clave, @hor_pes) SELECT SCOPE_IDENTITY() " +
                                                      "SET @Error = @@ERROR IF( @Error <> 0) GOTO TratarError COMMIT TRAN TratarError: " +
                                                      "IF @@Error<>0 BEGIN PRINT 'ha ocurrido un error' ROLLBACK TRAN END";
@@ -1700,7 +1750,7 @@ namespace Recepcion_Bascula
                                 cmnd1.Parameters.AddWithValue("@hay_error", hay);
                                 cmnd1.Parameters.AddWithValue("@error_comenta", txtIndError.Text.Trim());
                                 cmnd1.Parameters.AddWithValue("@prove_clave", prov_clave);
-                                cmnd1.Parameters.AddWithValue("@hor_pes", txtpesohora.Value.ToString("HH:mm:ss"));                                
+                                cmnd1.Parameters.AddWithValue("@hor_pes", txtpesohora.Value.ToString("HH:mm:ss"));
                                 //reader1 = cmnd1.ExecuteReader();
                                 //id_ticket = Convert.ToInt32(txtticket.Text);
                                 id_ticket = Convert.ToInt32(cmnd1.ExecuteScalar());
@@ -1710,7 +1760,7 @@ namespace Recepcion_Bascula
                                 thisConnection.Close();
                                 Utilerias.Class1.registrar_movimiento(DateTime.Now, Environment.MachineName, Utilerias.Class1.Usu_login, "V", "", id_ticket.ToString(), "si el flete es de Internet QUERY 1 (un solo registro de báscula con más de un flete)", "SIPGAB");
                                 thisConnection.Open();
-                                
+
 
                                 //inserta en tb_det_recepcion_bascula
                                 for (int i = 0; i < DGV1.Rows.Count; i++)
@@ -1724,7 +1774,7 @@ namespace Recepcion_Bascula
 
                                     cmnd1 = thisConnection.CreateCommand();
                                     cmnd1.CommandText = "insert into tb_det_recepcion_bascula (id_ticket, prod_clave, lin_clave, cantidad, envase, peso_bruto, tara, " +
-                                                      "peso_neto, id_tabla, tabla, num_tarimas, caj_tarimas, tipo_prod, variedad, observaciones, estatus, flete, prov_clave, rch_clave, "+
+                                                      "peso_neto, id_tabla, tabla, num_tarimas, caj_tarimas, tipo_prod, variedad, observaciones, estatus, flete, prov_clave, rch_clave, " +
                                                       "num_prod, rpt_recibo) values " +
                                                       "(" + id_ticket + ", '" + Convert.ToString(DGV1.Rows[i].Cells[0].Value).Trim() + "', " +
                                                       "'" + Convert.ToString(DGV1.Rows[i].Cells[1].Value).Trim() + "', " + Convert.ToInt32(DGV1.Rows[i].Cells[3].Value) + ", " +
@@ -1734,7 +1784,7 @@ namespace Recepcion_Bascula
                                                       "" + Convert.ToInt32(DGV1.Rows[i].Cells[10].Value) + ", " + Convert.ToInt32(DGV1.Rows[i].Cells[11].Value) + " , " +
                                                       "'" + Convert.ToString(DGV1.Rows[i].Cells[12].Value).Trim() + "', '" + Convert.ToString(DGV1.Rows[i].Cells["vari"].Value).Trim() + "', " +
                                                       "'" + Convert.ToString(DGV1.Rows[i].Cells[15].Value).Trim() + "', 'P', " + Convert.ToInt32(DGV1.Rows[i].Cells["folio"].Value) + ", " +
-                                                      "'" + prov_clave + "', '" + rch_clave + "', " + Convert.ToInt32((i + 1)) + ", "+
+                                                      "'" + prov_clave + "', '" + rch_clave + "', " + Convert.ToInt32((i + 1)) + ", " +
                                                       "'" + Convert.ToString(DGV1.Rows[i].Cells["rpt_rec"].Value).Trim() + "')";
                                     reader1 = cmnd1.ExecuteReader();
                                     reader1.Dispose();
@@ -1756,6 +1806,10 @@ namespace Recepcion_Bascula
 
                             for (int i = 0; i < DGV1.Rows.Count; i++)
                             {
+                                // FIX BUG-01: Blindar contra 'connection already open'
+                                // Si la conexión mySqlConn quedó abierta por un fallo previo,
+                                // mySqlConn.Open() truena y se aborta la liberación del flete.
+                                if (mySqlConn.State == System.Data.ConnectionState.Open) mySqlConn.Close();
                                 try
                                 {
                                     mySqlConn.Open();
@@ -1771,29 +1825,29 @@ namespace Recepcion_Bascula
                                     peso_bruto = Convert.ToDouble(DGV1.Rows[i].Cells[5].Value);
                                     tara = Convert.ToDouble(DGV1.Rows[i].Cells[6].Value);
                                     cmnd = mySqlConn.CreateCommand();
-                                    cmnd.CommandText = "update tb_det_flete set tara = " + tara + ", peso_bruto = " + peso_bruto + ", "+
-                                                       "caj_tarimas = " + Convert.ToDouble(DGV1.Rows[i].Cells[11].Value) + ", "+
-                                                       "num_tarimas = " + Convert.ToDouble(DGV1.Rows[i].Cells[10].Value) + ", "+
-                                                       "det_observa = '" + Convert.ToString(DGV1.Rows[i].Cells[15].Value) + "' "+
-                                                       "where id_producto = '" + Convert.ToString(DGV1.Rows[i].Cells[16].Value) + "' and "+
-                                                       "id_flete = " + Convert.ToInt32(DGV1.Rows[i].Cells["folio"].Value) + " and "+
+                                    cmnd.CommandText = "update tb_det_flete set tara = " + tara + ", peso_bruto = " + peso_bruto + ", " +
+                                                       "caj_tarimas = " + Convert.ToDouble(DGV1.Rows[i].Cells[11].Value) + ", " +
+                                                       "num_tarimas = " + Convert.ToDouble(DGV1.Rows[i].Cells[10].Value) + ", " +
+                                                       "det_observa = '" + Convert.ToString(DGV1.Rows[i].Cells[15].Value) + "' " +
+                                                       "where id_producto = '" + Convert.ToString(DGV1.Rows[i].Cells[16].Value) + "' and " +
+                                                       "id_flete = " + Convert.ToInt32(DGV1.Rows[i].Cells["folio"].Value) + " and " +
                                                        "id_proveedor = '" + Convert.ToString(DGV1.Rows[i].Cells["prove"].Value) + "'";
                                     reader = cmnd.ExecuteReader();
                                     reader.Dispose();
                                     //}
 
-                                    
+
 
 
                                     cmnd = mySqlConn.CreateCommand();
-                                    cmnd.CommandText = "insert into tb_mstr_bascula (id_flete, enviado, fecha_envio, hora_envio, fecha_recepcion, recibio, ticket_bascula, observacion, "+
+                                    cmnd.CommandText = "insert into tb_mstr_bascula (id_flete, enviado, fecha_envio, hora_envio, fecha_recepcion, recibio, ticket_bascula, observacion, " +
                                                         "lugar, error, error_comenta) values " +
                                                     "(" + Convert.ToInt32(DGV1.Rows[i].Cells["folio"].Value) + ", '" + txtrch.Text + "', '" + fecha.ToString("yyyy-MM-dd") + "', '" + fecha.ToShortTimeString() + "', '" + fecha.ToString("s") + "', '" + CBRecBas.SelectedItem.ToString() + "', " + txtticket.Text + ", '" + txtobs.Text + "', 'BASG', '" + hay + "', '" + txtIndError.Text + "')";
                                     reader = cmnd.ExecuteReader();
                                     reader.Dispose();
                                     mySqlConn.Close();
 
-                                    
+
 
                                     lbindrev.Visible = false;
                                     lbIndError.Visible = false;
@@ -1821,10 +1875,10 @@ namespace Recepcion_Bascula
 
                                 thisConnection.Open();
                                 string insertarSql = "DECLARE @Error INT BEGIN TRAN " +
-                                                     "INSERT INTO tb_mstr_recepcion_bascula (fecha_entrada, cargado, folio, transportista, rancho, cantidad, unidad, producto, observacion, "+
-                                                     "clasificacion, peso_entrada, peso_bruto, tara, peso_neto, id_entrada, estatus, recibio_bascula, error, error_comenta, prov_clave, "+
-                                                     "hora_peso) VALUES (@aux_fecha_entrada, @aux_cargado, @aux_folio, @aux_transportista, @aux_rancho, @aux_cantidad, @aux_unidad, "+
-                                                     "@aux_producto, @aux_observacion, @aux_clasificacion, @aux_peso_entrada, @aux_peso_bruto, @aux_tara, @aux_peso_neto, @id_entrada, "+
+                                                     "INSERT INTO tb_mstr_recepcion_bascula (fecha_entrada, cargado, folio, transportista, rancho, cantidad, unidad, producto, observacion, " +
+                                                     "clasificacion, peso_entrada, peso_bruto, tara, peso_neto, id_entrada, estatus, recibio_bascula, error, error_comenta, prov_clave, " +
+                                                     "hora_peso) VALUES (@aux_fecha_entrada, @aux_cargado, @aux_folio, @aux_transportista, @aux_rancho, @aux_cantidad, @aux_unidad, " +
+                                                     "@aux_producto, @aux_observacion, @aux_clasificacion, @aux_peso_entrada, @aux_peso_bruto, @aux_tara, @aux_peso_neto, @id_entrada, " +
                                                      "@aux_estatus, @id_bascula, @hay_error, @error_comenta, @prove_clave, @hor_pes) SELECT SCOPE_IDENTITY() " +
                                                      "SET @Error = @@ERROR IF( @Error <> 0) GOTO TratarError COMMIT TRAN TratarError: " +
                                                      "IF @@Error<>0 BEGIN PRINT 'ha ocurrido un error' ROLLBACK TRAN END";
@@ -1852,7 +1906,7 @@ namespace Recepcion_Bascula
                                 cmnd1.Parameters.AddWithValue("@hay_error", hay);
                                 cmnd1.Parameters.AddWithValue("@error_comenta", txtIndError.Text.Trim());
                                 cmnd1.Parameters.AddWithValue("@prove_clave", prov_clave);
-                                cmnd1.Parameters.AddWithValue("@hor_pes", txtpesohora.Value.ToString("HH:mm:ss"));                                
+                                cmnd1.Parameters.AddWithValue("@hor_pes", txtpesohora.Value.ToString("HH:mm:ss"));
                                 //reader1 = cmnd1.ExecuteReader();
                                 //id_ticket = Convert.ToInt32(txtticket.Text);
                                 id_ticket = Convert.ToInt32(cmnd1.ExecuteScalar());
@@ -1902,6 +1956,8 @@ namespace Recepcion_Bascula
                                 return;
                             }
 
+                            // FIX BUG-01: Blindar contra 'connection already open'
+                            if (mySqlConn.State == System.Data.ConnectionState.Open) mySqlConn.Close();
                             try
                             {
                                 mySqlConn.Open();
@@ -1977,10 +2033,10 @@ namespace Recepcion_Bascula
 
                                 thisConnection.Open();
                                 string insertarSql = "DECLARE @Error INT BEGIN TRAN " +
-                                                     "INSERT INTO tb_mstr_recepcion_bascula (fecha_entrada, cargado, folio, transportista, rancho, cantidad, unidad, producto, observacion, "+
-                                                     "clasificacion, peso_entrada, peso_bruto, tara, peso_neto, id_entrada, estatus, recibio_bascula, error, error_comenta, prov_clave, "+
-                                                     "hora_peso) VALUES (@aux_fecha_entrada, @aux_cargado, @aux_folio, @aux_transportista, @aux_rancho, @aux_cantidad, @aux_unidad, "+
-                                                     "@aux_producto, @aux_observacion, @aux_clasificacion, @aux_peso_entrada, @aux_peso_bruto, @aux_tara, @aux_peso_neto, @id_entrada, "+
+                                                     "INSERT INTO tb_mstr_recepcion_bascula (fecha_entrada, cargado, folio, transportista, rancho, cantidad, unidad, producto, observacion, " +
+                                                     "clasificacion, peso_entrada, peso_bruto, tara, peso_neto, id_entrada, estatus, recibio_bascula, error, error_comenta, prov_clave, " +
+                                                     "hora_peso) VALUES (@aux_fecha_entrada, @aux_cargado, @aux_folio, @aux_transportista, @aux_rancho, @aux_cantidad, @aux_unidad, " +
+                                                     "@aux_producto, @aux_observacion, @aux_clasificacion, @aux_peso_entrada, @aux_peso_bruto, @aux_tara, @aux_peso_neto, @id_entrada, " +
                                                      "@aux_estatus, @id_bascula, @hay_error, @error_comenta, @prove_clave, @hor_pes) SELECT SCOPE_IDENTITY() " +
                                                      "SET @Error = @@ERROR IF( @Error <> 0) GOTO TratarError COMMIT TRAN TratarError: " +
                                                      "IF @@Error<>0 BEGIN PRINT 'ha ocurrido un error' ROLLBACK TRAN END";
@@ -2009,7 +2065,7 @@ namespace Recepcion_Bascula
                                 cmnd1.Parameters.AddWithValue("@hay_error", hay);
                                 cmnd1.Parameters.AddWithValue("@error_comenta", txtIndError.Text);
                                 cmnd1.Parameters.AddWithValue("@prove_clave", prov_clave);
-                                cmnd1.Parameters.AddWithValue("@hor_pes", txtpesohora.Value.ToString("HH:mm:ss"));                                
+                                cmnd1.Parameters.AddWithValue("@hor_pes", txtpesohora.Value.ToString("HH:mm:ss"));
                                 id_ticket = Convert.ToInt32(cmnd1.ExecuteScalar());
                                 //reader1 = cmnd1.ExecuteReader();
                                 //id_ticket = Convert.ToInt32(txtticket.Text);
@@ -2094,9 +2150,11 @@ namespace Recepcion_Bascula
                                 Utilerias.Class1.SendMail("jbravo@mrlucky.com.mx", "jbravo", "juanjose", ex.ToString().Trim());
                                 MessageBox.Show(ex.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
-                            }                            
+                            }
                             if (numflete.Trim() != "")
                             {
+                                // FIX BUG-01: Blindar contra 'connection already open'
+                                if (mySqlConn.State == System.Data.ConnectionState.Open) mySqlConn.Close();
                                 try
                                 {
                                     mySqlConn.Open();
@@ -2169,10 +2227,10 @@ namespace Recepcion_Bascula
                                 txtregent.Text = "";
                                 thisConnection.Open();
                                 string insertarSql = "DECLARE @Error INT BEGIN TRAN " +
-                                                     "INSERT INTO tb_mstr_recepcion_bascula (fecha_entrada, cargado, folio, transportista, rancho, cantidad, unidad, producto, observacion, "+
-                                                     "clasificacion, peso_entrada, peso_bruto, tara, peso_neto, id_entrada, estatus, recibio_bascula, error, error_comenta, prov_clave, "+
-                                                     "hora_peso) VALUES (@aux_fecha_entrada, @aux_cargado, @aux_folio, @aux_transportista, @aux_rancho, @aux_cantidad, "+
-                                                     "@aux_unidad, @aux_producto, @aux_observacion, @aux_clasificacion, @aux_peso_entrada, @aux_peso_bruto, @aux_tara, @aux_peso_neto, "+
+                                                     "INSERT INTO tb_mstr_recepcion_bascula (fecha_entrada, cargado, folio, transportista, rancho, cantidad, unidad, producto, observacion, " +
+                                                     "clasificacion, peso_entrada, peso_bruto, tara, peso_neto, id_entrada, estatus, recibio_bascula, error, error_comenta, prov_clave, " +
+                                                     "hora_peso) VALUES (@aux_fecha_entrada, @aux_cargado, @aux_folio, @aux_transportista, @aux_rancho, @aux_cantidad, " +
+                                                     "@aux_unidad, @aux_producto, @aux_observacion, @aux_clasificacion, @aux_peso_entrada, @aux_peso_bruto, @aux_tara, @aux_peso_neto, " +
                                                      "@id_entrada, @aux_estatus, @id_bascula, @hay_error, @error_comenta, @prove_clave, @hor_pes) SELECT SCOPE_IDENTITY() " +
                                                      "SET @Error = @@ERROR IF( @Error <> 0) GOTO TratarError COMMIT TRAN TratarError: " +
                                                      "IF @@Error<>0 BEGIN PRINT 'ha ocurrido un error' ROLLBACK TRAN END";
@@ -2200,7 +2258,7 @@ namespace Recepcion_Bascula
                                 cmnd1.Parameters.AddWithValue("@hay_error", hay);
                                 cmnd1.Parameters.AddWithValue("@error_comenta", txtIndError.Text.Trim());
                                 cmnd1.Parameters.AddWithValue("@prove_clave", prov_clave);
-                                cmnd1.Parameters.AddWithValue("@hor_pes", txtpesohora.Value.ToString("HH:mm:ss"));                                
+                                cmnd1.Parameters.AddWithValue("@hor_pes", txtpesohora.Value.ToString("HH:mm:ss"));
                                 //reader1 = cmnd1.ExecuteReader();
                                 //id_ticket = Convert.ToInt32(txtticket.Text);
                                 id_ticket = Convert.ToInt32(cmnd1.ExecuteScalar());
@@ -2253,6 +2311,8 @@ namespace Recepcion_Bascula
                             {
                                 for (int i = 0; i < DGV1.Rows.Count; i++)
                                 {
+                                    // FIX BUG-01: Blindar contra 'connection already open'
+                                    if (mySqlConn.State == System.Data.ConnectionState.Open) mySqlConn.Close();
                                     try
                                     {
                                         mySqlConn.Open();
@@ -2266,7 +2326,7 @@ namespace Recepcion_Bascula
                                         reader = cmnd.ExecuteReader();
                                         reader.Dispose();
 
-                                        
+
                                         //for (int i = 0; i < DGV1.Rows.Count; i++)
                                         //{
                                         peso_bruto = Convert.ToDouble(DGV1.Rows[i].Cells[5].Value);
@@ -2312,7 +2372,16 @@ namespace Recepcion_Bascula
                         #endregion
                     }
                     #endregion
-                    
+
+                    // FIX BUG-02: Recargar lista de fletes para que el liberado desaparezca de la UI.
+                    // Si falla, el operador puede refrescar manualmente con el botón ALTA.
+                    try
+                    {
+                        listBox1.Items.Clear();
+                        cargar_fletes_pendientes_internet();
+                    }
+                    catch { /* no es crítico */ }
+
                     MessageBox.Show("El registro ha sido guardado con éxito", "AVISO", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     //if (txtlin_clave.Text.Trim() == "08")
@@ -2335,7 +2404,7 @@ namespace Recepcion_Bascula
                     //    //VistaPrevia.ShowDialog();
                     //    pd.Print();                            
                     //}
-                    
+
                     for (int i = 0; i < DGV1.Rows.Count; i++)
                     {
                         if ((Convert.ToString(DGV1.Rows[i].Cells[1].Value).Trim() == "08") || (Convert.ToString(DGV1.Rows[i].Cells[2].Value).Trim().Contains("ESPARRAGO")))
@@ -2373,12 +2442,12 @@ namespace Recepcion_Bascula
                     Utilerias.Class1.registrar_movimiento(DateTime.Now, Environment.MachineName, Utilerias.Class1.Usu_login, "A", "10.1", txtticket.Text, "REGISTRO DE NUEVO TICKET DE BASCULA " + txtticket.Text, "SIPGAB");
                 }
                 #endregion
-                    
+
                 #region guardar modificaciones
                 if (opcion == 3)
                 {
                     try
-                    {                        
+                    {
                         productos = productos.Replace("'", "''");
                         thisConnection.Open();
                         cmnd1 = thisConnection.CreateCommand();
@@ -2402,7 +2471,7 @@ namespace Recepcion_Bascula
                             if (Convert.ToString(DGV1.Rows[i].Cells[20].Value) != "R")
                             {
                                 string rc = Convert.ToString(DGV1.Rows[i].Cells["ranch"].Value).Trim();
-                                string[] rch = rc.Split('-');                                                                
+                                string[] rch = rc.Split('-');
                                 foreach (DataRow dr in ranchos.Select("prov_clave = '" + prov_clave + "' and rch_clave = '" + rch[0].ToString().Trim() + "'"))
                                 {
                                     rch_clave = Convert.ToString(dr["rch_clave"].ToString()).Trim();
@@ -2456,7 +2525,7 @@ namespace Recepcion_Bascula
                                     #region guarda en tb_mstr_recepcion_esparrago para saber el número de recibo que le corresponde
                                     tabl = Convert.ToString(DGV1.Rows[i].Cells["Column11"].Value);
                                     canti = 0;
-                                    canti = Convert.ToDecimal(DGV1.Rows[i].Cells["Columna02"].Value);                                    
+                                    canti = Convert.ToDecimal(DGV1.Rows[i].Cells["Columna02"].Value);
                                     thisConnection.Open();
                                     cmnd1 = thisConnection.CreateCommand();
                                     cmnd1.CommandText = "select rmp_recibo, rmp_estatus from tb_mstr_recepcion_esparrago where rmp_ticket = '" + txtticket.Text + "' and (rmp_num_envase = " + Convert.ToInt32(DGV1.Rows[i].Cells["prod_ofc"].Value) + " or rmp_num_envase is null)";
@@ -2502,7 +2571,7 @@ namespace Recepcion_Bascula
                                 pd.Print();
                             }
                         }
-                        
+
 
                         Utilerias.Class1.registrar_movimiento(DateTime.Now, Utilerias.Class1.Nombre_equipo, Utilerias.Class1.Usuario, "M", "10.1", txtticket.Text, "MODIFICACION DE DATOS AL TICKET " + txtticket.Text + " DE BASCULA", "SIPGAB");
 
@@ -2517,8 +2586,8 @@ namespace Recepcion_Bascula
                         return;
                     }
                 }
-                #endregion                
-                    
+                #endregion
+
                 limpiarTextBoxes(this);
                 listBox1.Items.Clear();
                 suma_prod = 0;
@@ -2541,7 +2610,7 @@ namespace Recepcion_Bascula
 
         private void CBRecBas_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            try 
+            try
             {
                 thisConnection.Open();
                 cmnd1 = thisConnection.CreateCommand();
@@ -2586,7 +2655,7 @@ namespace Recepcion_Bascula
                 {
                     ComboBox cb = (ComboBox)c;
                     cb.SelectedIndex = -1;
-                    cb.Enabled = false;                    
+                    cb.Enabled = false;
                 }
                 if (c.Controls.Count > 0)
                 {
@@ -2616,19 +2685,19 @@ namespace Recepcion_Bascula
             txtpesoent.Text = "0.00";
             txtpesoneto.Text = "0.00";
             txtpesosal.Text = "0.00";
-            txttara.Text = "0.00";            
+            txttara.Text = "0.00";
             btnAlta.Enabled = true;
             btnConsulta.Enabled = true;
             btnGuardar.Enabled = false;
-            btnCancel.Enabled = false;         
-            lin = ""; prod = ""; numflete = ""; id_proveedor = ""; id_rancho = ""; origen = ""; id_responsable = ""; plataforma = ""; numero_economico = ""; chofer = ""; tipo_transporte = ""; id_linea= ""; tipo = ""; transportista =""; rancho = ""; proveedor = ""; id_unidad=""; id_variedad=""; vehiculo = ""; productos = ""; unities = ""; clasificacion = ""; estatus=""; clave_bas=""; hay=""; detalle=""; envase = ""; rec_esp = ""; tabl = "";
-            aux_id_rancho = ""; aux_observacion =""; aux_num_economico=""; aux_od=""; prov_clave = ""; rch_clave=""; tbl_clave=""; tbl_nombre="";
-            aux_transporte = ""; aux_chofer = ""; aux_responsable = ""; aux_id_tipo_flete = ""; aux_id_responsable=""; aux_origen="";
-            aux_valor_operador=""; aux_valor_transportista=""; consulta = "N";
+            btnCancel.Enabled = false;
+            lin = ""; prod = ""; numflete = ""; id_proveedor = ""; id_rancho = ""; origen = ""; id_responsable = ""; plataforma = ""; numero_economico = ""; chofer = ""; tipo_transporte = ""; id_linea = ""; tipo = ""; transportista = ""; rancho = ""; proveedor = ""; id_unidad = ""; id_variedad = ""; vehiculo = ""; productos = ""; unities = ""; clasificacion = ""; estatus = ""; clave_bas = ""; hay = ""; detalle = ""; envase = ""; rec_esp = ""; tabl = "";
+            aux_id_rancho = ""; aux_observacion = ""; aux_num_economico = ""; aux_od = ""; prov_clave = ""; rch_clave = ""; tbl_clave = ""; tbl_nombre = "";
+            aux_transporte = ""; aux_chofer = ""; aux_responsable = ""; aux_id_tipo_flete = ""; aux_id_responsable = ""; aux_origen = "";
+            aux_valor_operador = ""; aux_valor_transportista = ""; consulta = "N";
             aux_id_proveedor = ""; aux_nombre_proveedor = ""; aux_opcion = ""; aux_presentacion = ""; texto = ""; tant = ""; aux_nom_variedad = ""; fecha_carga = "";
-            lastId =0; numero=0; numero_renglones=0; rencontrol=0; coor_y_ima=0; bas_clave=0; opcion=0;
-            peso_entrada = 0; peso_bruto=0; tara=0; peso_neto = 0;
-            id_ticket = 0; suma_prod = 0; cont = 0;            
+            lastId = 0; numero = 0; numero_renglones = 0; rencontrol = 0; coor_y_ima = 0; bas_clave = 0; opcion = 0;
+            peso_entrada = 0; peso_bruto = 0; tara = 0; peso_neto = 0;
+            id_ticket = 0; suma_prod = 0; cont = 0;
             nombre_unidad = "";
             canti = 0;
             esttus = "";
@@ -2806,16 +2875,16 @@ namespace Recepcion_Bascula
                             for (int i = 0; i < ranch.Items.Count; i++)
                             {
                                 if (ranch.Items[i].ToString().Trim() == reader11.GetValue(0).ToString().Trim())
-                                    rach =reader11.GetValue(1).ToString().Trim() + " - " + ranch.Items[i].ToString().Trim();
+                                    rach = reader11.GetValue(1).ToString().Trim() + " - " + ranch.Items[i].ToString().Trim();
                             }
                         }
                         reader11.Dispose();
-                        DGV1.Rows.Add(reader1.GetValue(0).ToString().Trim(), reader1.GetValue(1).ToString().Trim(), reader1.GetValue(2).ToString().Trim(), reader1.GetValue(3).ToString(), reader1.GetValue(4).ToString().Trim(), reader1.GetValue(5).ToString().Trim(), reader1.GetValue(6).ToString().Trim(), reader1.GetValue(7).ToString().Trim(), reader1.GetValue(8).ToString().Trim(), reader1.GetValue(9).ToString().Trim(), reader1.GetValue(10).ToString().Trim(), reader1.GetValue(11).ToString().Trim(), reader1.GetValue(14).ToString().Trim(), reader1.GetValue(12).ToString().Trim(), "", reader1.GetValue(13).ToString().Trim(), reader1.GetValue(3).ToString().Trim(), reader1.GetValue(17).ToString().Trim(), prov_clave, rach, reader1.GetValue(15).ToString().Trim());                        
+                        DGV1.Rows.Add(reader1.GetValue(0).ToString().Trim(), reader1.GetValue(1).ToString().Trim(), reader1.GetValue(2).ToString().Trim(), reader1.GetValue(3).ToString(), reader1.GetValue(4).ToString().Trim(), reader1.GetValue(5).ToString().Trim(), reader1.GetValue(6).ToString().Trim(), reader1.GetValue(7).ToString().Trim(), reader1.GetValue(8).ToString().Trim(), reader1.GetValue(9).ToString().Trim(), reader1.GetValue(10).ToString().Trim(), reader1.GetValue(11).ToString().Trim(), reader1.GetValue(14).ToString().Trim(), reader1.GetValue(12).ToString().Trim(), "", reader1.GetValue(13).ToString().Trim(), reader1.GetValue(3).ToString().Trim(), reader1.GetValue(17).ToString().Trim(), prov_clave, rach, reader1.GetValue(15).ToString().Trim());
                     }
                     reader1.Dispose();
                     thisConnection.Close();
 
-                    
+
                     if (estatus == "R" || estatus == "C")
                     {
                         thisConnection.Close();
@@ -2838,7 +2907,7 @@ namespace Recepcion_Bascula
                             //cmnd1.CommandText = "select rmp_recibo from tb_mstr_recepcion_esparrago where rmp_ticket = '" + txtticket.Text + "'";
                             //rec_esp = Convert.ToString(cmnd1.ExecuteScalar());
                             //thisConnection.Close();
-                        }                                               
+                        }
                     }
                 }
                 catch (SqlException ex)
@@ -2859,7 +2928,7 @@ namespace Recepcion_Bascula
             GBVeh.Enabled = true;
             txtpesosal.Enabled = true;
             txtpesoneto.Enabled = true;
-            GBTipo.Enabled = true;            
+            GBTipo.Enabled = true;
             txtlin_clave.Enabled = true;
             CBlinea.Enabled = true;
             txtpesobruto.Enabled = true;
@@ -2890,7 +2959,7 @@ namespace Recepcion_Bascula
 
             }
         }
-       
+
         private void CBProv_SelectionChangeCommitted(object sender, EventArgs e)
         {
             thisConnection.Open();
@@ -2932,7 +3001,7 @@ namespace Recepcion_Bascula
                 //if (consulta == "N")
                 //{
                 //ran.Items.Clear();
-                
+
                 ran = e.Control as ComboBox;
                 if (ran != null)
                 {
@@ -2946,7 +3015,7 @@ namespace Recepcion_Bascula
                 //if (consulta == "N")
                 //{
                 //tbl.Items.Clear();
-                
+
                 tbl = e.Control as ComboBox;
                 if (tbl != null)
                 {
@@ -2988,14 +3057,14 @@ namespace Recepcion_Bascula
         }
 
         private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {            
+        {
             //thisConnection.Open();
             if (DGV1.CurrentCell.ColumnIndex == 19)
             {
                 if (ran.SelectedIndex != -1)
                 {
                     ran.SelectedItem = ran.SelectedIndex;
-                    string rch = ran.SelectedItem.ToString().Trim();                    
+                    string rch = ran.SelectedItem.ToString().Trim();
                     //tbl.Items.Clear();
                     Column12.Items.Clear();
 
@@ -3011,7 +3080,7 @@ namespace Recepcion_Bascula
                         Column12.Items.Add(Convert.ToString(dr["tbl_nombre"].ToString()).Trim());
                     }
                 }
-                
+
                 //for (int i = 0; i < tbl.Items.Count; i++)
                 //{
                 //    Column12.Items.Add(tbl.Items[i]);
@@ -3052,7 +3121,7 @@ namespace Recepcion_Bascula
                 }
             }
             //DGV1.Update();
-           //thisConnection.Close();
+            //thisConnection.Close();
         }
 
         //private void tbl_SelectedIndexChanged(object sender, EventArgs e)
@@ -3084,8 +3153,8 @@ namespace Recepcion_Bascula
         private void txtclaveprov_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
             if (txtclaveprov.Text.Length > 0)
-            { 
-                if(e.KeyChar == (char)Keys.Enter)
+            {
+                if (e.KeyChar == (char)Keys.Enter)
                 {
                     thisConnection.Open();
                     cmnd1 = thisConnection.CreateCommand();
@@ -3098,20 +3167,20 @@ namespace Recepcion_Bascula
                     if (reader1.HasRows == false)
                     {
                         thisConnection.Close();
-                        MessageBox.Show("No se encontro ningún proveedor con la clave: " + txtclaveprov.Text, "AVISO" , MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("No se encontro ningún proveedor con la clave: " + txtclaveprov.Text, "AVISO", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
                     reader1.Dispose();
                     thisConnection.Close();
                     ranch.Items.Clear();
-                    
-                    foreach(DataRow dr in ranchos.Select("prov_clave ='"+txtclaveprov.Text+"'"))
+
+                    foreach (DataRow dr in ranchos.Select("prov_clave ='" + txtclaveprov.Text + "'"))
                     {
                         //ranch.ValueMember = Convert.ToString(dr["rch_clave"].ToString()).Trim();
                         //ranch.DisplayMember = Convert.ToString(dr["rch_nombre"].ToString()).Trim();
                         ranch.Items.Add(Convert.ToString(dr["rch_clave"].ToString()).Trim() + " - " + Convert.ToString(dr["rch_nombre"].ToString()).Trim());
-                    }                   
-                    
+                    }
+
                     prov_clave = txtclaveprov.Text;
                     //if (DGV1.Rows.Count > 0)
                     //{
@@ -3121,7 +3190,7 @@ namespace Recepcion_Bascula
                 }
             }
         }
-        
+
 
         private void DGV1_CellClick(object sender, System.Windows.Forms.DataGridViewCellEventArgs e)
         {
@@ -3132,7 +3201,7 @@ namespace Recepcion_Bascula
                     ran.SelectedItem = ran.SelectedIndex;
                     //ranchos
                     string rc = ran.SelectedItem.ToString().Trim();
-                    string[] rch = rc.Split('-');                   
+                    string[] rch = rc.Split('-');
                     //string rch  = ranchos.Rows[ran.SelectedIndex]["rch_clave"].ToString().Trim();
                     tbl.Items.Clear();
                     Column12.Items.Clear();
@@ -3154,7 +3223,7 @@ namespace Recepcion_Bascula
             }
         }
 
-        
+
 
         private void DGV1_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
         {
@@ -3170,7 +3239,7 @@ namespace Recepcion_Bascula
         private void DGV1_CellEndEdit(object sender, System.Windows.Forms.DataGridViewCellEventArgs e)
         {
             if (DGV1.CurrentCell.ColumnIndex == 8)
-            { 
+            {
                 tabl = Convert.ToString(DGV1.CurrentRow.Cells[8].Value);
                 bool cve = false;
                 foreach (DataRow dr in tablas.Select("prov_clave = '" + txtclaveprov.Text + "' and rch_clave = '" + rch_clave + "' and tbl_clave = '" + tabl + "'"))
@@ -3187,8 +3256,8 @@ namespace Recepcion_Bascula
                 cve = false;
             }
             if (DGV1.CurrentCell.ColumnIndex == 19)
-            { 
-                if (ran != null)               
+            {
+                if (ran != null)
                     ran.SelectedIndexChanged -= new EventHandler(ComboBox_SelectedIndexChanged);
 
 
@@ -3258,6 +3327,6 @@ namespace Recepcion_Bascula
                 txtticket_KeyPress(this, new KeyPressEventArgs((char)(Keys.Enter)));
                 btnmodi_Click(sender, e);
             }
-        }               
+        }
     }
 }
