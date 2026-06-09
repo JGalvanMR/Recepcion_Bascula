@@ -1806,6 +1806,10 @@ namespace Recepcion_Bascula
 
                             for (int i = 0; i < DGV1.Rows.Count; i++)
                             {
+                                // FIX BUG-01: Blindar contra 'connection already open'
+                                // Si la conexión mySqlConn quedó abierta por un fallo previo,
+                                // mySqlConn.Open() truena y se aborta la liberación del flete.
+                                if (mySqlConn.State == System.Data.ConnectionState.Open) mySqlConn.Close();
                                 try
                                 {
                                     mySqlConn.Open();
@@ -1952,6 +1956,8 @@ namespace Recepcion_Bascula
                                 return;
                             }
 
+                            // FIX BUG-01: Blindar contra 'connection already open'
+                            if (mySqlConn.State == System.Data.ConnectionState.Open) mySqlConn.Close();
                             try
                             {
                                 mySqlConn.Open();
@@ -2147,6 +2153,8 @@ namespace Recepcion_Bascula
                             }
                             if (numflete.Trim() != "")
                             {
+                                // FIX BUG-01: Blindar contra 'connection already open'
+                                if (mySqlConn.State == System.Data.ConnectionState.Open) mySqlConn.Close();
                                 try
                                 {
                                     mySqlConn.Open();
@@ -2303,6 +2311,8 @@ namespace Recepcion_Bascula
                             {
                                 for (int i = 0; i < DGV1.Rows.Count; i++)
                                 {
+                                    // FIX BUG-01: Blindar contra 'connection already open'
+                                    if (mySqlConn.State == System.Data.ConnectionState.Open) mySqlConn.Close();
                                     try
                                     {
                                         mySqlConn.Open();
@@ -2362,6 +2372,15 @@ namespace Recepcion_Bascula
                         #endregion
                     }
                     #endregion
+
+                    // FIX BUG-02: Recargar lista de fletes para que el liberado desaparezca de la UI.
+                    // Si falla, el operador puede refrescar manualmente con el botón ALTA.
+                    try
+                    {
+                        listBox1.Items.Clear();
+                        cargar_fletes_pendientes_internet();
+                    }
+                    catch { /* no es crítico */ }
 
                     MessageBox.Show("El registro ha sido guardado con éxito", "AVISO", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
