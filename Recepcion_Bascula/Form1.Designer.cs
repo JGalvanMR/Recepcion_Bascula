@@ -295,7 +295,7 @@
             this.lbfletes.ForeColor = System.Drawing.Color.White;
             this.lbfletes.Location = new System.Drawing.Point(222, 93);
             this.lbfletes.Name = "lbfletes";
-            this.lbfletes.Size = new System.Drawing.Size(118, 16);
+            this.lbfletes.Size = new System.Drawing.Size(117, 16);
             this.lbfletes.TabIndex = 311;
             this.lbfletes.Text = "Fletes pendientes";
             // 
@@ -307,7 +307,7 @@
             this.lbticket.ForeColor = System.Drawing.Color.White;
             this.lbticket.Location = new System.Drawing.Point(394, 112);
             this.lbticket.Name = "lbticket";
-            this.lbticket.Size = new System.Drawing.Size(51, 16);
+            this.lbticket.Size = new System.Drawing.Size(50, 16);
             this.lbticket.TabIndex = 312;
             this.lbticket.Text = "Ticket:";
             // 
@@ -332,7 +332,7 @@
             this.lbregisvigi.ForeColor = System.Drawing.Color.White;
             this.lbregisvigi.Location = new System.Drawing.Point(585, 112);
             this.lbregisvigi.Name = "lbregisvigi";
-            this.lbregisvigi.Size = new System.Drawing.Size(128, 16);
+            this.lbregisvigi.Size = new System.Drawing.Size(127, 16);
             this.lbregisvigi.TabIndex = 314;
             this.lbregisvigi.Text = "Registro vigilancía:";
             this.lbregisvigi.Visible = false;
@@ -368,7 +368,7 @@
             this.lbfecha.ForeColor = System.Drawing.Color.White;
             this.lbfecha.Location = new System.Drawing.Point(394, 159);
             this.lbfecha.Name = "lbfecha";
-            this.lbfecha.Size = new System.Drawing.Size(48, 16);
+            this.lbfecha.Size = new System.Drawing.Size(47, 16);
             this.lbfecha.TabIndex = 317;
             this.lbfecha.Text = "Fecha:";
             // 
@@ -380,7 +380,7 @@
             this.lbtransportista.ForeColor = System.Drawing.Color.White;
             this.lbtransportista.Location = new System.Drawing.Point(394, 198);
             this.lbtransportista.Name = "lbtransportista";
-            this.lbtransportista.Size = new System.Drawing.Size(96, 16);
+            this.lbtransportista.Size = new System.Drawing.Size(95, 16);
             this.lbtransportista.TabIndex = 318;
             this.lbtransportista.Text = "Transportista:";
             // 
@@ -404,7 +404,7 @@
             this.lbrancho.ForeColor = System.Drawing.Color.Black;
             this.lbrancho.Location = new System.Drawing.Point(394, 241);
             this.lbrancho.Name = "lbrancho";
-            this.lbrancho.Size = new System.Drawing.Size(58, 16);
+            this.lbrancho.Size = new System.Drawing.Size(57, 16);
             this.lbrancho.TabIndex = 320;
             this.lbrancho.Text = "Rancho:";
             // 
@@ -428,7 +428,7 @@
             this.lbregent.ForeColor = System.Drawing.Color.Black;
             this.lbregent.Location = new System.Drawing.Point(394, 286);
             this.lbregent.Name = "lbregent";
-            this.lbregent.Size = new System.Drawing.Size(115, 16);
+            this.lbregent.Size = new System.Drawing.Size(114, 16);
             this.lbregent.TabIndex = 322;
             this.lbregent.Text = "Registro entrada:";
             // 
@@ -563,7 +563,7 @@
             this.lbprod.ForeColor = System.Drawing.Color.Black;
             this.lbprod.Location = new System.Drawing.Point(394, 369);
             this.lbprod.Name = "lbprod";
-            this.lbprod.Size = new System.Drawing.Size(68, 16);
+            this.lbprod.Size = new System.Drawing.Size(67, 16);
             this.lbprod.TabIndex = 327;
             this.lbprod.Text = "Producto:";
             // 
@@ -604,7 +604,7 @@
             this.lblin.ForeColor = System.Drawing.Color.Black;
             this.lblin.Location = new System.Drawing.Point(394, 330);
             this.lblin.Name = "lblin";
-            this.lblin.Size = new System.Drawing.Size(45, 16);
+            this.lblin.Size = new System.Drawing.Size(44, 16);
             this.lblin.TabIndex = 330;
             this.lblin.Text = "Linea:";
             // 
@@ -645,7 +645,7 @@
             this.lbpesent.ForeColor = System.Drawing.Color.Black;
             this.lbpesent.Location = new System.Drawing.Point(271, 548);
             this.lbpesent.Name = "lbpesent";
-            this.lbpesent.Size = new System.Drawing.Size(92, 16);
+            this.lbpesent.Size = new System.Drawing.Size(91, 16);
             this.lbpesent.TabIndex = 334;
             this.lbpesent.Text = "Peso entrada:";
             // 
@@ -670,7 +670,7 @@
             this.lbpesosal.ForeColor = System.Drawing.Color.Black;
             this.lbpesosal.Location = new System.Drawing.Point(428, 548);
             this.lbpesosal.Name = "lbpesosal";
-            this.lbpesosal.Size = new System.Drawing.Size(82, 16);
+            this.lbpesosal.Size = new System.Drawing.Size(81, 16);
             this.lbpesosal.TabIndex = 336;
             this.lbpesosal.Text = "Peso salida:";
             // 
@@ -695,7 +695,7 @@
             this.lbpesobruto.ForeColor = System.Drawing.Color.Black;
             this.lbpesobruto.Location = new System.Drawing.Point(578, 548);
             this.lbpesobruto.Name = "lbpesobruto";
-            this.lbpesobruto.Size = new System.Drawing.Size(79, 16);
+            this.lbpesobruto.Size = new System.Drawing.Size(78, 16);
             this.lbpesobruto.TabIndex = 338;
             this.lbpesobruto.Text = "Peso bruto:";
             // 
@@ -733,7 +733,7 @@
             this.lbtara.ForeColor = System.Drawing.Color.Black;
             this.lbtara.Location = new System.Drawing.Point(740, 548);
             this.lbtara.Name = "lbtara";
-            this.lbtara.Size = new System.Drawing.Size(39, 16);
+            this.lbtara.Size = new System.Drawing.Size(38, 16);
             this.lbtara.TabIndex = 340;
             this.lbtara.Text = "Tara:";
             // 
@@ -758,7 +758,7 @@
             this.lbpesoneto.ForeColor = System.Drawing.Color.Black;
             this.lbpesoneto.Location = new System.Drawing.Point(865, 548);
             this.lbpesoneto.Name = "lbpesoneto";
-            this.lbpesoneto.Size = new System.Drawing.Size(73, 16);
+            this.lbpesoneto.Size = new System.Drawing.Size(72, 16);
             this.lbpesoneto.TabIndex = 342;
             this.lbpesoneto.Text = "Peso neto:";
             // 
@@ -770,7 +770,7 @@
             this.lbobs.ForeColor = System.Drawing.Color.Black;
             this.lbobs.Location = new System.Drawing.Point(231, 615);
             this.lbobs.Name = "lbobs";
-            this.lbobs.Size = new System.Drawing.Size(104, 16);
+            this.lbobs.Size = new System.Drawing.Size(103, 16);
             this.lbobs.TabIndex = 344;
             this.lbobs.Text = "Observaciones:";
             // 
@@ -1202,7 +1202,7 @@
             this.lbrepbas.ForeColor = System.Drawing.Color.White;
             this.lbrepbas.Location = new System.Drawing.Point(902, 146);
             this.lbrepbas.Name = "lbrepbas";
-            this.lbrepbas.Size = new System.Drawing.Size(128, 16);
+            this.lbrepbas.Size = new System.Drawing.Size(127, 16);
             this.lbrepbas.TabIndex = 349;
             this.lbrepbas.Text = "Recepción báscula:";
             // 
@@ -1230,7 +1230,7 @@
             this.lbindrev.ForeColor = System.Drawing.Color.Black;
             this.lbindrev.Location = new System.Drawing.Point(234, 657);
             this.lbindrev.Name = "lbindrev";
-            this.lbindrev.Size = new System.Drawing.Size(105, 16);
+            this.lbindrev.Size = new System.Drawing.Size(104, 16);
             this.lbindrev.TabIndex = 351;
             this.lbindrev.Text = "Indicar revisión";
             this.lbindrev.Visible = false;
@@ -1258,7 +1258,7 @@
             this.lbIndError.ForeColor = System.Drawing.Color.Black;
             this.lbIndError.Location = new System.Drawing.Point(485, 657);
             this.lbIndError.Name = "lbIndError";
-            this.lbIndError.Size = new System.Drawing.Size(99, 16);
+            this.lbIndError.Size = new System.Drawing.Size(98, 16);
             this.lbIndError.TabIndex = 353;
             this.lbIndError.Text = "Indicar errores";
             this.lbIndError.Visible = false;
@@ -1296,7 +1296,7 @@
             this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(585, 112);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(74, 16);
+            this.label1.Size = new System.Drawing.Size(73, 16);
             this.label1.TabIndex = 357;
             this.label1.Text = "Proveedor:";
             // 
@@ -1339,7 +1339,7 @@
             this.lbhorapeso.ForeColor = System.Drawing.Color.Black;
             this.lbhorapeso.Location = new System.Drawing.Point(1010, 548);
             this.lbhorapeso.Name = "lbhorapeso";
-            this.lbhorapeso.Size = new System.Drawing.Size(76, 16);
+            this.lbhorapeso.Size = new System.Drawing.Size(75, 16);
             this.lbhorapeso.TabIndex = 360;
             this.lbhorapeso.Text = "Hora peso:";
             // 
@@ -1492,6 +1492,7 @@
             this.Name = "Recepcion_bascula";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "2.17 Recepción bascula";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Recepcion_bascula_FormClosed);
             this.Load += new System.EventHandler(this.Recepcion_bascula_Load);
             ((System.ComponentModel.ISupportInitialize)(this.btnminimizar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.btnsalir)).EndInit();

@@ -46,6 +46,7 @@ namespace Recepcion_Bascula
         List<string> variedad = new List<string>();
         List<string> unidades = new List<string>();
         List<string> clave_unidades = new List<string>();
+
         public static string nombre_unidad = "";
         public static decimal canti = 0;
         public static string esttus = "";
@@ -59,6 +60,9 @@ namespace Recepcion_Bascula
         public string _Speed;
         public string _GetBitSerial;
         public string _GetBitSerialFull;
+
+        public string Actualizar = "";
+        private bool requiereActualizar = false;
 
         private Font fuente = new Font("Arial", 8);
 
@@ -281,6 +285,14 @@ namespace Recepcion_Bascula
 
         private void Recepcion_bascula_Load(object sender, EventArgs e)
         {
+
+            #region VALIDA Y FORZA ACTUALIZAR
+            if (ValidaActualizacion())
+            {
+                requiereActualizar = true;
+                this.Close(); // Cerramos el formulario para dar paso al actualizador
+            }
+            #endregion
             cargar_linea();
             //tabla();
             try
@@ -370,6 +382,14 @@ namespace Recepcion_Bascula
 
             try
             {
+                #region VALIDA Y FORZA ACTUALIZAR
+                if (ValidaActualizacion())
+                {
+                    requiereActualizar = true;
+                    this.Close(); // Cerramos el formulario para dar paso al actualizador
+                }
+                #endregion
+
                 thisConnection.Open();
                 cmnd1 = thisConnection.CreateCommand();
                 cmnd1.CommandText = "select max(id_ticket) from tb_mstr_recepcion_bascula";
@@ -1311,6 +1331,14 @@ namespace Recepcion_Bascula
 
         private void cargar_unidades(int lugar)
         {
+            #region VALIDA Y FORZA ACTUALIZAR
+            if (ValidaActualizacion())
+            {
+                requiereActualizar = true;
+                this.Close(); // Cerramos el formulario para dar paso al actualizador
+            }
+            #endregion
+
             #region cuando el flete se carga de internet
             if (lugar == 1)
             {
@@ -2715,6 +2743,13 @@ namespace Recepcion_Bascula
             consulta = "S";
             txtclaveprov.Enabled = true;
             txtpesohora.Enabled = false;
+            #region VALIDA Y FORZA ACTUALIZAR
+            if (ValidaActualizacion())
+            {
+                requiereActualizar = true;
+                this.Close(); // Cerramos el formulario para dar paso al actualizador
+            }
+            #endregion
         }
 
         //consulta el ticket de báscula
@@ -3327,6 +3362,74 @@ namespace Recepcion_Bascula
                 txtticket_KeyPress(this, new KeyPressEventArgs((char)(Keys.Enter)));
                 btnmodi_Click(sender, e);
             }
+        }
+
+        #region METODO PARA VALIDAR LA ACTUALIZACION DEL EJECUTABLE
+        public bool ValidaActualizacion()
+        {
+            string rutaServerTxt = @"\\gabira1\sisgabweb\Valida.txt";
+            string rutaServerExe = @"\\gabira1\sisgabweb\Recepcion_Bascula.exe";
+            string rutaLocalExe = @"c:\sisgabweb\Recepcion_Bascula.exe";
+
+            try
+            {
+                // 1. Validamos que el archivo de control en el servidor exista
+                if (File.Exists(rutaServerTxt) && File.Exists(rutaServerExe) && File.Exists(rutaLocalExe))
+                {
+                    DateTime fechaLocal = File.GetLastWriteTime(rutaLocalExe);
+                    DateTime fechaServer = File.GetLastWriteTime(rutaServerExe);
+
+                    // 2. Comparamos fechas
+                    if (fechaServer > fechaLocal)
+                    {
+                        MessageBox.Show("Hay una versión más reciente. El sistema se cerrará para actualizarse.\n\nPor favor, vuelva a abrir el programa cuando finalice.",
+                                        "Actualización Disponible",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Information);
+                        return true;
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                // Si la red se cae o el archivo está bloqueado, atrapamos el error para que no truene la app
+                Console.WriteLine($"Error al validar actualización: {ex.Message}");
+            }
+
+            return false;
+        }
+        #endregion
+
+        private void Recepcion_bascula_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            #region DESCARGA LA NUEVA VERSION DEL EJECUTABLE
+            if (requiereActualizar)
+            {
+                string updaterPath = @"c:\sisgabweb\DownFile.exe";
+
+                if (File.Exists(updaterPath))
+                {
+                    try
+                    {
+                        // Iniciamos el actualizador de manera limpia
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = updaterPath,
+                            Arguments = "Recepcion_Bascula.exe",
+                            UseShellExecute = true // Asegura que corra correctamente en el entorno de Windows
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"No se pudo iniciar el actualizador: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("No se encontró el archivo actualizador (DownFile.exe).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            #endregion
         }
     }
 }
